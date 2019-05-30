@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "CBScheduleSection"
-  s.version      = "0.0.1"
+  s.version      = "0.0.2"
   s.summary      = "日程"
 
   # This description is used to generate tags and improve search results.
@@ -80,7 +80,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :https => "https://github.com/Goooolden/CBScheduleSection.git", :tag => "0.0.1" }
+  s.source       = { :git => "https://github.com/Goooolden/CBScheduleSection.git", :tag => "0.0.2" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -134,7 +134,7 @@ Pod::Spec.new do |s|
 
   # s.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
   # s.dependency "JSONKit", "~> 1.4"
-  s.dependency  "AFNetworking",'3.0.0'
+  s.dependency  "AFNetworking"
   s.dependency  "WMPageController"
   s.dependency  "Masonry"
   s.dependency  "SDWebImage", '3.8.0'
