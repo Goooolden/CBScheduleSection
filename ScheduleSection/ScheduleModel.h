@@ -60,4 +60,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SchedulelistCodeModel : NSObject
+
+@property (nonatomic, copy) NSString *id;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *code;
+@property (nonatomic, copy) NSString *layer;
+@property (nonatomic, copy) NSString *sys;
+@property (nonatomic, copy) NSString *icon;
+@property (nonatomic, copy) NSString *isParent;
+@property (nonatomic, copy) NSString *pId;
+
+@end
+
 NS_ASSUME_NONNULL_END

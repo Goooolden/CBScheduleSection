@@ -124,6 +124,7 @@
     
     self.selectedDateString = [date formatterDate:@"yyyy/MM/dd"];
     [self requestReceiveSchedule:self.selectedDateString];
+    [self requestListMonth:self.selectedDateString];
 }
 
 //该日期是否有事件

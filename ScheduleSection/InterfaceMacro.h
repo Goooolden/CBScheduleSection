@@ -33,8 +33,11 @@ do { \
 isNilOrNull(object) ?: [dictionary setObject:object forKey:@#object]; \
 } while (0)
 
-#define BaseURL @"http://10.5.1.4"
-#define Token   @"Combanc eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTU1OTEzNDYyOX0.nf1sZ1ps3T-7pfqA6mviIYg5FhH-3BXmAUYu75orvXws0Z2D5rhSa4xyn5GrdWAuqC8FpcGX7aojscDF-5hAJQ"
+#define ScheduleBaseUrl (@"ScheduleBaseUrl")
+#define BaseURL [[NSUserDefaults standardUserDefaults] objectForKey:ScheduleBaseUrl]//@"http://10.5.1.4"
+
+#define PushToken (@"token")
+#define Token [[NSUserDefaults standardUserDefaults] objectForKey:PushToken]
 
 #pragma mark - 请求header
 NS_INLINE NSDictionary *header(NSString *token) {
@@ -150,6 +153,16 @@ NS_INLINE NSDictionary *getDepartScheduleParam(NSString *id){
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
     setObjectForKey(id);
+    setObjectForParameter(dictionary);
+    return paramDic.copy;
+}
+
+//获取类型
+#define SchedulelistByCodeURL [NSString stringWithFormat:@"%@/micro/oa/dic/listByCode",BaseURL]
+NS_INLINE NSDictionary *getListByCodeParam(NSString *code) {
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    NSMutableDictionary *paramDic = [NSMutableDictionary dictionary];
+    setObjectForKey(code);
     setObjectForParameter(dictionary);
     return paramDic.copy;
 }

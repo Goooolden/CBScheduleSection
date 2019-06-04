@@ -7,7 +7,7 @@
 //
 
 #import "ScheduleSelectViewController.h"
-#import "ScheduleMeetViewController.h"
+#import "AddScheduleViewController.h"
 #import "ScheduleRemoveViewController.h"
 #import "InterfaceMacro.h"
 #import "ScheduleModel.h"
@@ -265,7 +265,7 @@ static NSString *const USER_CELLID   = @"user_cellID";
 
 - (void)submitButtonClicked:(UIButton *)sender {
     for (UIViewController *viewController in self.navigationController.viewControllers) {
-        if ([viewController isKindOfClass:[ScheduleMeetViewController class]]) {
+        if ([viewController isKindOfClass:[AddScheduleViewController class]]) {
             [self.navigationController popToViewController:viewController animated:YES];
         }
     }
@@ -306,6 +306,7 @@ static NSString *const USER_CELLID   = @"user_cellID";
         }
         [self.myTableView reloadData];
     } failure:^(NSError *error) {
+        
     }];
 }
 

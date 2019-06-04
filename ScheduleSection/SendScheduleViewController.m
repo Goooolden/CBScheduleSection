@@ -47,7 +47,14 @@ static NSString *const SendScheduleCellID = @"SendScheduleCellID";
     [self.myTableView registerClass:[ScheduleTableViewCell class] forCellReuseIdentifier:SendScheduleCellID];
     [self.view addSubview:self.myTableView];
     [self.myTableView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.view).insets(UIEdgeInsetsMake(0, 0, 0, 0));
+        if (@available(iOS 11.0, *)) {
+            make.top.equalTo(self.view.mas_safeAreaLayoutGuideTop);
+            make.left.equalTo(self.view.mas_safeAreaLayoutGuideLeft);
+            make.right.equalTo(self.view.mas_safeAreaLayoutGuideRight);
+            make.bottom.equalTo(self.view.mas_safeAreaLayoutGuideBottom).offset(-150);
+        } else {
+            make.edges.equalTo(self.view);
+        }
     }];
 }
 

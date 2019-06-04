@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SchedulePageViewController : WMPageController
 
+@property (nonatomic, copy) NSString *baseUrl;
+@property (nonatomic, copy) NSString *token;
+
 @end
 
 NS_ASSUME_NONNULL_END

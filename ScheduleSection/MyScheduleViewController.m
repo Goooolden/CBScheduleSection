@@ -45,7 +45,7 @@
     [super viewDidLoad];
     
     [self configUI];
-    [self requestListMonth:@"2019/05/23"];
+    [self requestListMonth:[[NSDate new] formatterDate:@"yyyy/MM/dd"]];
 }
 
 #pragma mark - configUI
@@ -120,9 +120,10 @@
 - (void)calendarDidSelectedDate:(NSDate *)date {
     NSString *key = [date formatterDate:@"yyyy年MM月"];
     self.dateLabel.text = key;
-
+    
     self.selectedDateString = [date formatterDate:@"yyyy/MM/dd"];
     [self requestReceiveSchedule:self.selectedDateString];
+    [self requestListMonth:self.selectedDateString];
 }
 
 //该日期是否有事件
@@ -144,9 +145,12 @@
 
 #pragma mark - RequestAPI
 - (void)requestListMonth:(NSString *)current {
+    NSLog(@"current---%@",current);
     [HTTPTool postWithURL:ScheduleMonthURL headers:header(Token) params:getScheduleMonthParam(current) success:^(id json) {
         if ([json[@"result"] isEqual:@(1)]) {
             self.monthArray = [ScheduleMonthModel mj_objectArrayWithKeyValuesArray:json[@"data"]];
+            [self.manager reloadAppearanceAndData];
+            NSLog(@"self.monthArray.count -- %ld",self.monthArray.count);
         }
     } failure:^(NSError *error) {
         

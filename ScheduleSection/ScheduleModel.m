@@ -28,3 +28,7 @@
 @implementation ScheduleDepartmentModel
 
 @end
+
+@implementation SchedulelistCodeModel
+
+@end

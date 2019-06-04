@@ -11,6 +11,7 @@
 #import "AllScheduleViewController.h"
 #import "SendScheduleViewController.h"
 #import "AddScheduleViewController.h"
+#import "InterfaceMacro.h"
 
 @interface SchedulePageViewController ()
 
@@ -36,6 +37,14 @@
         [self addRightItem];
     }
     return self;
+}
+
+- (void)setToken:(NSString *)token {
+    [[NSUserDefaults standardUserDefaults] setObject:token forKey:PushToken];
+}
+
+- (void)setBaseUrl:(NSString *)baseUrl {
+    [[NSUserDefaults standardUserDefaults] setObject:baseUrl forKey:ScheduleBaseUrl];
 }
 
 - (NSArray *)titles {

@@ -8,14 +8,21 @@
 
 #import "AddScheduleViewController.h"
 #import "ScheduleMeetViewController.h"
+#import "PickerSelectView.h"
 #import "ChoiceTableViewCell.h"
 #import "TextfieldTableViewCell.h"
 #import "TextViewTableViewCell.h"
+#import "ScheduleManager.h"
+#import "ScheduleModel.h"
+#import "MJExtension.h"
+#import "InterfaceMacro.h"
+#import "HTTPTool.h"
 #import "Masonry.h"
 #import "LYSDatePicker.h"
+#import "UITextView+Placeholder.h"
+#import "UIColor+ScheduleColor.h"
 #import "NSDate+CalendarCategory.h"
-#import "HTTPTool.h"
-#import "InterfaceMacro.h"
+#import "CombancHUD.h"
 
 #define Tag 999
 static NSString *const AddChoiceCellID    = @"AddChoiceCellID";
@@ -31,10 +38,37 @@ LYSDatePickerDataSource>
 @property (nonatomic, copy  ) NSArray *sectionName;
 @property (nonatomic, strong) UITableView *myTableView;
 @property (nonatomic, strong) LYSDatePicker *pickerView;
+@property (nonatomic, strong) NSMutableArray *listCodeArray;
+@property (nonatomic, strong) NSMutableDictionary *managerDic;      //会议负责人
+@property (nonatomic, strong) NSMutableDictionary *participateDic;  //参会人员
+@property (nonatomic, assign) BOOL isSelectManager;
+
+@property (nonatomic, copy  ) NSString *address;
+@property (nonatomic, copy  ) NSString *selectDate;
+@property (nonatomic, copy  ) NSString *beginTime;
+@property (nonatomic, copy  ) NSString *endTime;
+@property (nonatomic, copy  ) NSString *selectTypeName;
+@property (nonatomic, copy  ) NSString *selectTypeID;
+@property (nonatomic, copy  ) NSString *content;
 
 @end
 
 @implementation AddScheduleViewController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    if (self.isSelectManager) {
+        self.managerDic = [[ScheduleManager sharePushManagerInstance].selectUserDictionary mutableCopy];
+    }else {
+        self.participateDic = [[ScheduleManager sharePushManagerInstance].selectUserDictionary mutableCopy];
+    }
+    [[ScheduleManager sharePushManagerInstance].selectUserDictionary removeAllObjects];
+    [[ScheduleManager sharePushManagerInstance].selectDepartDictionary removeAllObjects];
+    [ScheduleManager sharePushManagerInstance].departMentArray = [[NSMutableArray alloc]initWithObjects:@"部门", nil];
+    if (self.myTableView) {
+        [self.myTableView reloadData];
+    }
+}
 
 - (LYSDatePicker *)pickerView {
     if (!_pickerView) {
@@ -56,6 +90,8 @@ LYSDatePickerDataSource>
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self requestListByCode];
     [self configUI];
 }
 
@@ -97,30 +133,45 @@ LYSDatePickerDataSource>
         ChoiceTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:AddChoiceCellID];
         cell.nameLabel.text = self.sectionName[indexPath.section][indexPath.row];
         cell.infoLabel.text = @"请选择";
+        if (indexPath.section == 0 && indexPath.row == 0) {
+            cell.infoLabel.text = self.selectDate;
+        }else if (indexPath.section == 0 && indexPath.row == 1) {
+            cell.infoLabel.text = self.selectTypeName;
+        }else if (indexPath.section == 0 && indexPath.row == 2) {
+            cell.infoLabel.text = self.beginTime;
+        }else if (indexPath.section == 0 && indexPath.row == 3) {
+            cell.infoLabel.text = self.endTime;
+        }else if (indexPath.section == 1 && indexPath.row == 0) {
+            cell.infoLabel.text = [[self.managerDic allValues] componentsJoinedByString:@","];
+        }else if (indexPath.section == 1 && indexPath.row == 1) {
+            cell.infoLabel.text = [[self.participateDic allValues] componentsJoinedByString:@","];
+        }
         return cell;
     }else if (indexPath.section == 0 && indexPath.row == 4) {
         TextfieldTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:AddTextFieldCellID];
         cell.nameLabel.text = self.sectionName[indexPath.section][indexPath.row];
-        cell.infoTextView.text = @"请输入";
+        [cell.infoTextView setPlaceholder:@"请输入" placeholderColor:[UIColor colorWithHex:@"#c7c7c7"]];
         [cell textViewDidChange:^{
             [self.myTableView beginUpdates];
             [self.myTableView endUpdates];
         } withDidEndEditingBlock:^(NSString *string) {
             [self.myTableView beginUpdates];
             [self.myTableView endUpdates];
+            self.address = string;
         }];
         return cell;
     }else if (indexPath.section == 2) {
         TextViewTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:AddTextViewCellID];
         cell.nameLabel.text = self.sectionName[indexPath.section][indexPath.row];
         cell.wordLimt = 200;
-        cell.infoTextView.text = @"请输入内容";
+        [cell.infoTextView setPlaceholder:@"请输入内容" placeholderColor:[UIColor colorWithHex:@"#c7c7c7"]];
         [cell textViewDidChange:^{
             [self.myTableView beginUpdates];
             [self.myTableView endUpdates];
         } withDidEndEditingBlock:^(NSString *string) {
             [self.myTableView beginUpdates];
             [self.myTableView endUpdates];
+            self.content = string;
         }];
         return cell;
     }
@@ -144,7 +195,26 @@ LYSDatePickerDataSource>
         [UIView animateWithDuration:0.3 animations:^{
             self.pickerView.frame = CGRectMake(0, CGRectGetHeight(self.view.frame) - 256, CGRectGetWidth(self.view.frame), 256);
         }];
+    }else if (indexPath.section == 0 && indexPath.row == 1) {
+        NSMutableArray *listArray  = [NSMutableArray new];
+        for (SchedulelistCodeModel *model in self.listCodeArray) {
+            [listArray addObject:model.name];
+        }
+        [PickerSelectView showPickerSelecterWithTitle:@"类型" selectInfo:@[listArray] resultBlock:^(NSArray *selectValue) {
+            self.selectTypeName = [selectValue firstObject];
+            for (SchedulelistCodeModel *model in self.listCodeArray) {
+                if ([model.name isEqualToString:self.selectTypeName]) {
+                    self.selectTypeID = model.id;
+                }
+            }
+            [self.myTableView reloadData];
+        }];
     }else if (indexPath.section == 1) {
+        if (indexPath.row == 0) {
+            self.isSelectManager = YES;
+        }else {
+            self.isSelectManager = NO;
+        }
         ScheduleMeetViewController *meetVC = [[ScheduleMeetViewController alloc]init];
         [self.navigationController pushViewController:meetVC animated:YES];
     }
@@ -189,7 +259,7 @@ LYSDatePickerDataSource>
 }
 
 - (void)itemRightClicked:(NSString *)sender {
-    NSLog(@"提交");
+    [self requestAddSchedule];
 }
 
 #pragma mark - LYSDatePicker
@@ -199,7 +269,14 @@ LYSDatePickerDataSource>
 }
 
 - (void)commitAction:(UIButton *)sender {
-    NSLog(@"---%@  %ld",self.pickerView.date,(long)self.pickerView.tag);
+    if (self.pickerView.tag == Tag) {
+        self.selectDate = [self.pickerView.date formatterDate:@"yyyy/MM/dd"];
+    }else if (self.pickerView.tag == Tag + 2) {
+        self.beginTime = [self.pickerView.date formatterDate:@"HH:mm"];
+    }else if (self.pickerView.tag == Tag + 3) {
+        self.endTime = [self.pickerView.date formatterDate:@"HH:mm"];
+    }
+    [self.myTableView reloadData];
     [self LYSDatePickerDismiss];
 }
 
@@ -212,12 +289,35 @@ LYSDatePickerDataSource>
 
 #pragma mark - RequestAdd
 
+- (void)requestListByCode {
+    [HTTPTool postWithURL:SchedulelistByCodeURL headers:header(Token) params:getListByCodeParam(@"task_type") success:^(id json) {
+        if ([json[@"result"] isEqual:@(1)]) {
+            self.listCodeArray = [SchedulelistCodeModel mj_objectArrayWithKeyValuesArray:json[@"data"]];
+            [self.myTableView reloadData];
+        }
+    } failure:^(NSError *error) {
+        
+    }];
+}
+
 - (void)requestAddSchedule {
-//    [HTTPTool postWithURL:ScheduleAddURL headers:header(Token) params:getScheduleAddParam(<#NSString *date#>, <#NSString *stime#>, <#NSString *etime#>, <#NSString *type#>, <#NSString *content#>, <#NSString *address#>, <#NSArray *users#>) success:^(id json) {
-//
-//    } failure:^(NSError *error) {
-//
-//    }];
+    NSMutableArray *userArray = [[NSMutableArray alloc]init];
+    for (NSString *nameid in [self.participateDic allKeys]) {
+        NSMutableDictionary *dic = [[NSMutableDictionary alloc]init];
+        NSString *name = [self.participateDic objectForKey:nameid];
+        [dic setValue:name forKey:@"name"];
+        [dic setValue:nameid forKey:@"id"];
+        [dic setValue:@"false" forKey:@"isLeader"];
+        [userArray addObject:dic];
+    }
+    [HTTPTool postWithURL:ScheduleAddURL headers:header(Token) params:getScheduleAddParam(self.selectDate, self.beginTime, self.endTime, self.selectTypeID, self.content, self.address, userArray) success:^(id json) {
+        if ([json[@"result"] isEqual:@(1)]) {
+            [CombancHUD showSuccessMessage:@"添加成功"];
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    } failure:^(NSError *error) {
+        [CombancHUD showErrorMessage:@"网络错误，请稍后再试"];
+    }];
 }
 
 @end
