@@ -61,7 +61,7 @@
     }];
     
     //改变该图片的方向
-    UIImage *backImage = [UIImage imageNamed:@"Image"];
+    UIImage *backImage = [UIImage imageNamed:@"Schedule.bundle/icon_RightAccessory"];
     backImage = [UIImage imageWithCGImage:backImage.CGImage
                                     scale:backImage.scale
                               orientation:UIImageOrientationDown];
@@ -78,7 +78,7 @@
     
     //下个月
     self.nextMonthButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.nextMonthButton setImage:[UIImage imageNamed:@"Image"] forState:UIControlStateNormal];
+    [self.nextMonthButton setImage:[UIImage imageNamed:@"Schedule.bundle/icon_RightAccessory"] forState:UIControlStateNormal];
     [self.nextMonthButton addTarget:self action:@selector(nextBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
     [headerView addSubview:self.nextMonthButton];
     [self.nextMonthButton mas_makeConstraints:^(MASConstraintMaker *make) {

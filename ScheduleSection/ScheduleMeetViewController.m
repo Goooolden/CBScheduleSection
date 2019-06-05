@@ -26,6 +26,7 @@ static NSString *const CellID = @"CellID";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     
     self.title = @"选择参会人员";
     self.sectionNameArray = @[@"按部门选择",@"按年级选择",@"按分组选择"];

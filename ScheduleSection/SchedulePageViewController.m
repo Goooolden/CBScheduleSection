@@ -11,6 +11,7 @@
 #import "AllScheduleViewController.h"
 #import "SendScheduleViewController.h"
 #import "AddScheduleViewController.h"
+#import "UIColor+ScheduleColor.h"
 #import "InterfaceMacro.h"
 
 @interface SchedulePageViewController ()
@@ -31,9 +32,12 @@
         self.titleSizeNormal = 16;
         self.menuViewStyle = WMMenuViewStyleLine;
         self.titleFontName = @"PingFangSC-Medium";
-        self.menuView.scrollView.backgroundColor = [UIColor redColor];
+        self.titleColorSelected = [UIColor colorWithHex:@"#007aff"];
+        self.titleColorNormal = [UIColor colorWithHex:@"#38383d"];
         self.menuItemWidth = 80.0f;
         self.progressWidth = 80.0f;
+        self.menuHeight = 44.0f;
+        self.menuBGColor = [UIColor whiteColor];
         [self addRightItem];
     }
     return self;
@@ -93,7 +97,6 @@
 - (void)addBtnClicked:(UIButton *)sender {
     //进入新增页面
     AddScheduleViewController *addVC = [[AddScheduleViewController alloc]init];
-//    [self presentViewController:addVC animated:YES completion:nil];
     [self.navigationController pushViewController:addVC animated:YES];
 }
 
